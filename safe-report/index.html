@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- This page never sends anything anywhere: no fetch, no forms, no outside files. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-5WgKhaBAUhi8Z316NYhcn/KHdYHrM2lmezwHbS6bM2M='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Safe Report · share a near miss without being identified</title>
+<meta name="description" content="Free tool for mariners: hide vessel names, IMO and MMSI numbers, crew names, ports, positions, dates and times before you share an incident or near miss. Runs in your browser, nothing is sent anywhere.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.6 12 15 6.9-1.4 12-7.5 12-15V7z' fill='%231F6E99'/%3E%3Cpath d='m11 16 3.5 3.5L21.5 12' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#F5F6F3; --surface:#FFFFFF; --ink:#16262B; --body:#3B4A4F; --muted:#5B696C;
+  --accent:#1F6E99; --accent-ink:#FFFFFF; --accent-soft:#E2EEF6; --amber:#8F530C; --amber-soft:#FBEFD9;
+  --rule:#DCE2DE; --field:#FBFCFB;
+  --t-name:#FCE3D9; --t-name-b:#C2512A;
+  --t-contact:#DCEBFA; --t-contact-b:#2C6CB0;
+  --t-id:#F6DDEE; --t-id-b:#A2387E;
+  --t-date:#E7E2F8; --t-date-b:#5B48B5;
+  --t-place:#DDF1E4; --t-place-b:#2B8150;
+  --t-hidden:#EDE8DA; --t-hidden-b:#7A6A3C;
+  --t-vessel:#DDF0F7; --t-vessel-b:#1F7A99;
+  --display: Georgia, 'Times New Roman', serif;
+  --text: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+  --mono: Consolas, 'Courier New', monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111A1D; --surface:#172427; --ink:#EDF2EF; --body:#C2CECB; --muted:#93A5A1;
+  --accent:#6CB8DE; --accent-ink:#0F1A1C; --accent-soft:#18323F; --amber:#F0AA4E; --amber-soft:#3A2C17;
+  --rule:#2A3A3E; --field:#13201F;
+  --t-name:#4A2A1F; --t-name-b:#F09A78;
+  --t-contact:#1D3550; --t-contact-b:#8CBDF0;
+  --t-id:#45213A; --t-id-b:#EB93CD;
+  --t-date:#2E2852; --t-date-b:#B4A8F2;
+  --t-place:#1B3B28; --t-place-b:#86D3A4;
+  --t-hidden:#3A3424; --t-hidden-b:#D9C68E;
+  --t-vessel:#173A47; --t-vessel-b:#7FC8E3;
+  color-scheme: dark}}
+:root[data-theme="dark"]{
+  --bg:#111A1D; --surface:#172427; --ink:#EDF2EF; --body:#C2CECB; --muted:#93A5A1;
+  --accent:#6CB8DE; --accent-ink:#0F1A1C; --accent-soft:#18323F; --amber:#F0AA4E; --amber-soft:#3A2C17;
+  --rule:#2A3A3E; --field:#13201F;
+  --t-name:#4A2A1F; --t-name-b:#F09A78;
+  --t-contact:#1D3550; --t-contact-b:#8CBDF0;
+  --t-id:#45213A; --t-id-b:#EB93CD;
+  --t-date:#2E2852; --t-date-b:#B4A8F2;
+  --t-place:#1B3B28; --t-place-b:#86D3A4;
+  --t-hidden:#3A3424; --t-hidden-b:#D9C68E;
+  --t-vessel:#173A47; --t-vessel-b:#7FC8E3;
+  color-scheme: dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--body);font-family:var(--text);font-size:16px;line-height:1.6;padding-inline:16px}
+a{color:var(--accent)}
+.wrap{max-width:900px;margin:0 auto;padding:28px 0 64px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand svg{width:34px;height:34px;flex:none}
+.brand b{font-family:var(--display);font-size:22px;letter-spacing:.2px}
+.brand small{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin-top:-2px}
+.maker{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:10px 12px 10px 10px;flex-wrap:wrap}
+.maker img{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.mk-text{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.mk-text b{color:var(--ink);font-size:15.5px}
+.mk-text span{color:var(--muted);font-size:13.5px}
+.mk-btns{display:flex;gap:8px;flex-wrap:wrap}
+.mk-btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--rule);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700;color:var(--ink);text-decoration:none;background:var(--surface)}
+.mk-btn svg{width:17px;height:17px;flex:none}
+.mk-btn:hover{border-color:var(--accent)}
+.mk-btn.li{background:#0A66C2;border-color:#0A66C2;color:#fff}
+.mk-btn.li:hover{background:#004182;border-color:#004182}
+@media (max-width:640px){.maker{width:100%}.mk-btns{width:100%}.mk-btn{flex:1;justify-content:center}}
+footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.theme{background:none;border:1px solid var(--rule);color:var(--muted);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+h1{font-family:var(--display);color:var(--ink);font-size:clamp(28px,5vw,42px);line-height:1.15;margin:30px 0 10px;letter-spacing:-.3px}
+.lede{font-size:18px;max-width:680px;margin:0 0 18px}
+.trust{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px;padding:0;list-style:none}
+.trust li{display:flex;align-items:center;gap:7px;background:var(--accent-soft);color:var(--ink);border-radius:999px;padding:6px 13px;font-size:14px;font-weight:600}
+.trust li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.live{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:12px 0 26px;font-size:14.5px;color:var(--ink)}
+.live .pulse{width:10px;height:10px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;flex:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,110,153,.55)}70%{box-shadow:0 0 0 9px rgba(31,110,153,0)}100%{box-shadow:0 0 0 0 rgba(31,110,153,0)}}
+@media (prefers-reduced-motion:reduce){.live .pulse{animation:none}}
+.live b{font-size:16px}
+.live a{font-weight:700}
+#net:empty{display:none}
+.live.offline #net{color:var(--accent);font-weight:700}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0 16px;font-weight:600;color:var(--ink);font-size:15px}
+.flow span{border:1px solid var(--rule);border-radius:10px;padding:6px 12px;background:var(--bg)}
+.flow i{font-style:normal;color:var(--muted)}
+.flow .yes{border-color:var(--accent);background:var(--accent-soft)}
+.flow .no{text-decoration:line-through;color:var(--muted)}
+.tgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.tgrid{grid-template-columns:1fr}}
+.tcard{border:1px solid var(--rule);border-radius:12px;padding:14px 16px;background:var(--bg)}
+.tcard h3{margin:0 0 4px;font-size:16.5px;color:var(--ink)}
+.tcard p{margin:0 0 10px;font-size:14.5px}
+.tcard .btn{display:inline-block;text-decoration:none}
+.field{width:100%;border:1px solid var(--rule);border-radius:10px;background:var(--field);color:var(--ink);padding:10px 12px;font:inherit;font-size:15.5px}
+.megrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px}
+@media (max-width:760px){.megrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.megrid{grid-template-columns:1fr}}
+.opt{font-family:var(--text);font-size:14px;font-weight:600;color:var(--muted)}
+.megrid label{display:flex;flex-direction:column;gap:4px;font-size:13.5px;color:var(--muted);font-weight:600}
+.remember{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px;cursor:pointer}
+.remember input{accent-color:var(--accent);width:16px;height:16px}
+details.more{margin-top:12px;font-size:14.5px}
+details.more summary{cursor:pointer;color:var(--accent);font-weight:600;margin-bottom:8px}
+.facts{margin-top:16px;font-size:15px}
+.facts p{margin:0 0 8px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:20px;margin:0 0 16px}
+.card h2{font-family:var(--display);color:var(--ink);font-size:21px;margin:0 0 4px;display:flex;align-items:center;gap:10px}
+.step{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-family:var(--text);font-size:14px;font-weight:700;flex:none}
+.sub{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+textarea{width:100%;min-height:170px;resize:vertical;border:1px solid var(--rule);border-radius:12px;background:var(--field);color:var(--ink);padding:12px 14px;font:inherit;font-size:15.5px;line-height:1.55}
+textarea:focus,input:focus,button:focus-visible,mark:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+textarea[readonly]{background:var(--bg)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.btn{border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:10px;padding:9px 15px;font:inherit;font-size:14.5px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.opts{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:14px;font-size:14.5px}
+.opts label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.opts input{accent-color:var(--accent);width:16px;height:16px}
+.always{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.always input{flex:1 1 220px;min-width:0;border:1px solid var(--rule);border-radius:10px;background:var(--field);color:var(--ink);padding:9px 12px;font:inherit;font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--t-hidden);color:var(--ink);border-radius:999px;padding:3px 6px 3px 11px;font-size:13.5px}
+.chip button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:0 4px}
+.preview{border:1px solid var(--rule);border-radius:12px;background:var(--field);color:var(--ink);padding:12px 14px;min-height:90px;white-space:pre-wrap;word-wrap:break-word;font-size:15.5px;line-height:1.75}
+.preview .empty{color:var(--muted)}
+mark{color:var(--ink);border-radius:5px;padding:1px 3px;cursor:pointer;border-bottom:2px solid}
+mark.possible{border-bottom-style:dashed}
+mark.off{background:none!important;text-decoration:line-through;text-decoration-color:var(--muted);border-bottom-color:transparent!important;opacity:.7}
+.c-name{background:var(--t-name);border-color:var(--t-name-b)}
+.c-contact{background:var(--t-contact);border-color:var(--t-contact-b)}
+.c-id{background:var(--t-id);border-color:var(--t-id-b)}
+.c-date{background:var(--t-date);border-color:var(--t-date-b)}
+.c-place{background:var(--t-place);border-color:var(--t-place-b)}
+.c-hidden{background:var(--t-hidden);border-color:var(--t-hidden-b)}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;padding:0;list-style:none;font-size:13.5px}
+.legend li{border-radius:999px;padding:2px 10px;color:var(--ink)}
+.summary{font-weight:700;color:var(--ink);margin:12px 0 0;font-size:15px}
+.hint{font-size:13.5px;color:var(--muted);margin:8px 0 0}
+.note{border-left:3px solid var(--amber);background:var(--amber-soft);color:var(--ink);border-radius:0 10px 10px 0;padding:10px 14px;font-size:14.5px;margin-top:12px}
+.ok{color:var(--accent);font-weight:600;font-size:14px}
+.limits{background:var(--surface);border:1px dashed var(--rule);border-radius:16px;padding:18px 20px;margin:24px 0 16px;font-size:15px}
+.limits h3,.cta h3{font-family:var(--display);color:var(--ink);margin:0 0 6px;font-size:19px}
+.limits p{margin:0}
+.cta{background:var(--accent-soft);border-radius:16px;padding:20px;margin:0 0 24px}
+.cta p{margin:0 0 12px;color:var(--ink)}
+.cta a.btn{display:inline-block;text-decoration:none}
+footer{font-size:13.5px;color:var(--muted);border-top:1px solid var(--rule);padding-top:14px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:560px){.card{padding:16px}.lede{font-size:16.5px}}
+.c-vessel{background:var(--t-vessel);border-color:var(--t-vessel-b)}
+.chk{margin:6px 0 0;padding-left:20px}
+.chk li{margin:2px 0}
+code{font-family:var(--mono);font-size:.92em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="https://zehaanai.com" rel="noopener">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 13.6 12 15 6.9-1.4 12-7.5 12-15V7z" fill="var(--accent)"/><path d="m11 16 3.5 3.5L21.5 12" stroke="var(--accent-ink)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span><b>Safe Report</b><small>for mariners · by Zehaan Khan</small></span>
+    </a>
+    <div class="maker">
+      <img src="data:image/jpeg;base64,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" alt="Zehaan Khan" width="52" height="52">
+      <div class="mk-text"><b>Built by Zehaan Khan</b><span>Questions? Talk to me directly.</span></div>
+      <div class="mk-btns">
+        <a class="mk-btn li" href="https://www.linkedin.com/in/zehaankhan/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>LinkedIn</a>
+        <a class="mk-btn" href="mailto:enquiries@zehaanai.com"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 5h18v14H3z M3 6l9 7 9-7"/></svg>Email me</a>
+      </div>
+    </div>
+  </header>
+
+  <h1>Share a near miss without being identified.</h1>
+  <p class="lede">Paste your incident story. Safe Report hides vessel names, IMO and MMSI numbers, crew names, ports, positions, dates and times, so the lesson gets shared and nobody can trace it back to you, your ship or your company.</p>
+  <ul class="trust">
+    <li>Runs in your browser</li>
+    <li>Nothing is sent anywhere</li>
+    <li>Works with your wifi off</li>
+    <li>Free, no sign up</li>
+  </ul>
+  <p class="live" id="live" role="status"><span class="pulse" aria-hidden="true"></span><span>Requests this page has sent since you opened it: <b id="reqs">0</b> (measured by your own browser)</span><span id="net"></span><a href="#check">Check it yourself</a></p>
+
+  <section class="card" aria-labelledby="s1">
+    <h2 id="s1"><span class="step">1</span>Paste your story</h2>
+    <p class="sub">An incident, a near miss, a lesson learned. Write it the way you'd tell a shipmate.</p>
+    <label class="sr" for="input">Your story</label>
+    <textarea id="input" spellcheck="false" placeholder="Paste here..."></textarea>
+    <div class="row">
+      <button class="btn" id="example" type="button">Try an example</button>
+      <button class="btn" id="clear" type="button">Clear</button>
+    </div>
+    <fieldset class="opts" style="border:0;padding:0;margin:14px 0 0">
+      <legend class="sr">What to hide</legend>
+      <label><input type="checkbox" data-cat="name" checked> People</label>
+      <label><input type="checkbox" data-cat="vessel" checked> Vessels and ship numbers</label>
+      <label><input type="checkbox" data-cat="place" checked> Ports, positions and addresses</label>
+      <label><input type="checkbox" data-cat="date" checked> Dates and times</label>
+      <label><input type="checkbox" data-cat="contact" checked> Phones and emails</label>
+      <label><input type="checkbox" data-cat="id" checked> Other ID numbers</label>
+    </fieldset>
+    <div class="always">
+      <label class="sr" for="term">Always hide these words</label>
+      <input id="term" type="text" placeholder="Always hide: your company, your ship's nickname, a crew name..." autocomplete="off">
+      <button class="btn" id="addterm" type="button">Add</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <section class="card" aria-labelledby="s2">
+    <h2 id="s2"><span class="step">2</span>Check what we found</h2>
+    <p class="sub">Highlighted parts will be hidden. Click a highlight to keep it visible. Missed something? Select it with your mouse, then press Hide selection.</p>
+    <div class="preview" id="preview" aria-live="polite"><span class="empty">Your story will show up here with the identifying details highlighted.</span></div>
+    <ul class="legend" id="legend"></ul>
+    <p class="summary" id="summary"></p>
+    <div class="row">
+      <button class="btn" id="hidesel" type="button" disabled>Hide selection</button>
+    </div>
+    <p class="hint">Dashed underline means "probably a name". Double check those.</p>
+  </section>
+
+  <section class="card" aria-labelledby="s3">
+    <h2 id="s3"><span class="step">3</span>Copy your anonymous version</h2>
+    <fieldset class="opts" style="border:0;padding:0;margin:0 0 10px">
+      <legend class="sr">How hidden details look</legend>
+      <label><input type="radio" name="style" id="style-plain" value="plain" checked> Plain words (Vessel A, Person B, [date])</label>
+      <label><input type="radio" name="style" id="style-ph" value="ph"> Placeholders ([VESSEL_1], [NAME_2])</label>
+    </fieldset>
+    <label class="sr" for="output">Anonymous version</label>
+    <textarea id="output" readonly placeholder="Your anonymous version shows up here."></textarea>
+    <div class="row">
+      <button class="btn primary" id="copyout" type="button" disabled>Copy anonymous version</button>
+      <span class="ok" id="copied1" hidden>Copied</span>
+    </div>
+    <div class="note"><b>Before you share it, read it once more for things only a person can catch:</b>
+      <ul class="chk">
+        <li>Your company, your ship's nickname or anything printed on the hull or funnel</li>
+        <li>A detail that fits only one ship, like "the only LNG carrier at that berth that week"</li>
+        <li>A rank and nationality that fits only one person, like "the only Filipino chief engineer in the fleet"</li>
+        <li>Exact dates and times. "Last spring, during the night watch" teaches the same lesson</li>
+        <li>Photos: ship names, IMO numbers on the hull, faces and screens</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card" id="check" aria-labelledby="chk">
+    <h2 id="chk">Don't trust it. Check it.</h2>
+    <p class="sub">You're about to paste something that could cost someone their job, so you should be suspicious. Three ways to prove nothing leaves your computer:</p>
+    <div class="tgrid">
+      <div class="tcard"><h3>1. Turn off your wifi</h3><p>Open this page, turn your wifi off (or go somewhere with no signal at sea), then use it. It works exactly the same, because your story never needs to go anywhere.</p></div>
+      <div class="tcard"><h3>2. Watch the network</h3><p>Press F12 (on a Mac: Cmd + Option + I) and open the Network tab. Paste your story and press every button. Nothing new shows up. The page also blocks itself from sending anything, with a security setting (Content Security Policy) set to <code>connect-src 'none'</code>.</p></div>
+      <div class="tcard"><h3>3. Read the code</h3><p>The whole tool is one file of plain, readable code. Nothing hidden, nothing scrambled. Hand it to your company's IT person.</p><a class="btn" href="source.txt" target="_blank" rel="noopener">Read the code</a></div>
+      <div class="tcard"><h3>What we collect</h3><p>Nothing. No accounts, no cookies, no analytics. Your browser only remembers whether you picked light or dark mode. Never the text you paste.</p></div>
+    </div>
+  </section>
+
+  <section class="limits" aria-labelledby="lim">
+    <h3 id="lim">What it can't do</h3>
+    <p>Safe Report catches the common patterns: vessel names after MV, MT, MS and similar, quoted ship names, IMO and MMSI numbers, call signs, names after a rank, ports after words like "arrived at" or "bound for", positions, dates, times, phones and emails. It can miss unusual names, nicknames, and details that only fit one ship or one person. Always read the anonymous version before you share it. Your company's reporting rules still come first.</p>
+  </section>
+
+  <section class="cta" aria-labelledby="cta">
+    <h3 id="cta">Want this inside your own platform?</h3>
+    <p>I build private AI and automation tools that run on your own systems, so sensitive data never goes to an AI company.</p>
+    <a class="btn primary" href="https://zehaanai.com" rel="noopener">zehaanai.com</a>
+  </section>
+
+  <footer><span>Free to use and share. No sign up, no tracking. Made by <a href="https://www.linkedin.com/in/zehaankhan/" target="_blank" rel="noopener">Zehaan Khan</a>. Every name, ship and number in the example is made up.</span><button class="theme" id="theme" type="button">Dark mode</button></footer>
+</div>
+
+<script>
+'use strict';
+// ---------- detection ----------
+const CAT = {NAME:'name', HIDDEN:'hidden', EMAIL:'contact', PHONE:'contact', SIN:'id', SSN:'id', NHS:'id', NI:'id',
+  HEALTH_CARD:'id', CARD:'id', ID:'id', DATE:'date', ADDRESS:'place', POSTCODE:'place',
+  VESSEL:'vessel', IMO:'vessel', MMSI:'vessel', CALLSIGN:'vessel', PORT:'place', POSITION:'place', TIME:'date'};
+const LABEL = {name:'People', vessel:'Vessels and ship numbers', place:'Ports, positions and addresses', date:'Dates and times', contact:'Phones and emails', id:'Other ID numbers', hidden:'Always hide'};
+
+const STOP = new Set((
+ 'the a an this that these those he she they we you i it his her hers their theirs our ours my mine your yours its him them us me ' +
+ 'in on at for from with without to of and but or nor if when while after before since because as so then there here what which who whom whose why how ' +
+ 'please thanks thank dear hi hello hey best regards sincerely cheers warmly kind yes no not all any some each every both either neither one two three four five ' +
+ 'today tomorrow yesterday tonight morning afternoon evening week month year ' +
+ 'monday tuesday wednesday thursday friday saturday sunday mon tue tues wed thu thur thurs fri sat sun ' +
+ 'january february march april may june july august september october november december jan feb mar apr jun jul aug sep sept oct nov dec ' +
+ 're fw fwd subject note notes case client clients staff team program programme programs service services health mental care centre center ' +
+ 'community society foundation association fund food bank housing support office department ministry government council committee agency institute ' +
+ 'trust charity church mosque temple synagogue hospital clinic school university college shelter legal aid court police immigration refugee refugees newcomer newcomers ' +
+ 'settlement multicultural cooperative coop co-op inc ltd llc corp group network alliance coalition partners partnership project initiative campaign mission ministries ' +
+ 'youth women men family families children kids seniors immigrant immigrants house home village place park hall library museum club league union federation ' +
+ 'canada canadian ontario toronto ottawa vancouver calgary edmonton montreal winnipeg halifax victoria regina saskatoon hamilton mississauga brampton ' +
+ 'british columbia alberta quebec manitoba saskatchewan nova scotia brunswick newfoundland labrador yukon nunavut territories ' +
+ 'england english london scotland scottish wales welsh ireland irish britain uk us usa america american states united kingdom europe european africa african asia asian ' +
+ 'french spanish arabic farsi dari pashto persian tigrinya amharic oromo somali urdu punjabi hindi bengali tamil mandarin cantonese chinese ukrainian russian portuguese tagalog korean vietnamese turkish swahili ' +
+ 'christmas easter ramadan eid diwali hanukkah thanksgiving ' +
+ 'ai chatgpt openai google microsoft copilot gemini claude anthropic zoom teams outlook excel word pdf email phone address date birth dob ' +
+ 'mr mrs ms miss mx dr prof sir madam st ave rd street avenue road apt unit suite ' +
+ 'board executive director manager coordinator worker caseworker volunteer volunteers intake referral letter report grant grants funding budget plan policy privacy officer ' +
+ 'north south east west new old great good important urgent follow up next steps step summary action items meeting agenda update draft final ' +
+ 'he\'s she\'s they\'re we\'re i\'m it\'s don\'t can\'t won\'t didn\'t isn\'t wasn\'t ' +
+ 'also just only still even never always often again already soon later now well very really maybe perhaps however therefore ' +
+ 'called call asked said told met spoke visited needs needed wants wanted missed attended booked cancelled scheduled confirmed sent received ' +
+ 'mom dad mother father son daughter brother sister wife husband partner aunt uncle grandmother grandfather friend neighbour neighbor ' +
+ 'appointment appointments interpreter counselling counseling therapy doctor nurse benefits rent income tenant tenants resident residents participant participants patient patients member members ' +
+ 'flat floor apartment building block room level ' +
+ 'scarborough markham vaughan richmond oakville burlington oshawa ajax pickering whitby kitchener waterloo windsor guelph barrie sudbury kingston surrey burnaby laval gatineau kelowna ' +
+ 'leeds manchester birmingham liverpool glasgow edinburgh bristol sheffield cardiff belfast newcastle nottingham leicester brighton oxford cambridge york ' +
+ 'chicago houston phoenix dallas austin seattle boston denver atlanta miami detroit portland philadelphia brooklyn queens bronx manhattan ' +
+ 'vessel vessels ship ships tanker tankers bulker bulkers carrier carriers containership container containers ferry tug tugs barge trawler dredger yacht freighter reefer crew crews master captain capt officer officers engineer engineers mate mates bosun boatswain cadet cadets pilot pilots chief second third fourth able seaman seamen rating ratings oiler wiper fitter motorman cook steward electrician eto deckhand mariner mariners seafarer seafarers shipmate shipmates watch watchkeeper lookout helmsman helm con bridge deck decks engine hold holds hatch hatches crane cranes winch winches mooring moorings rope ropes lines gangway accommodation galley mess anchor anchors anchorage berth berths quay terminal terminals harbour harbor port ports starboard bow stern aft forward midships fairway strait straits bay gulf sea seas ocean river coast coastal canal lock locks buoy buoys traffic separation scheme vts radar ecdis ais gps vhf arpa gmdss epirb sart imo mmsi solas marpol colregs stcw ism isps sms dpa psc class flag owner owners charterer charterers agent agents surveyor surveyors cargo cargoes ballast bunker bunkers fuel oil lng lpg crude chemical vlcc ulcc roro pax passenger passengers fishing near miss incident accident collision grounding allision fire flooding injury injuries overboard mob drill drills lifeboat lifeboats liferaft liferafts muster rescue davit davits enclosed space permit toolbox talk risk assessment lesson lessons learned investigation investigations safety nobody everyone someone utc lt gmt hrs nautical mile miles cable cables knots knot heading course speed visibility fog storm swell wind weather starboard port baltic mediterranean atlantic pacific indian arctic caribbean malacca bosphorus dardanelles kiel aden hormuz red black channel station state control management system resource team standing orders order night passage plan procedure procedures checklist manual handover boat ladder launch alarm general emergency abandon exercise pollution response separator generator main auxiliary boiler steering gear rudder propeller thruster compass gyro autopilot echo sounder log logbook official standby duty'
+).split(/\s+/));
+const TITLES = 'Mr|Mrs|Ms|Miss|Mx|Dr|Prof|Professor|Sir|Madam|Mme|Mlle|Captain|Capt|Master|Officer|Engineer|Mate|Bosun|Boatswain|Cadet|Pilot|AB|OS|Oiler|Wiper|Fitter|Motorman|Cook|Steward|Electrician|ETO|Seaman|Deckhand|Rating';
+const CONTEXT = /\b(?:client|tenant|resident|participant|patient|member|youth|child|son|daughter|mother|father|mom|dad|mum|wife|husband|partner|brother|sister|grandmother|grandfather|aunt|uncle|caseworker|worker|volunteer|crewmember|crew member|seafarer|mariner|shipmate|colleague|named|name is|name:)\s+$/i;
+const PARTICLES = new Set(['de','del','della','da','di','van','von','der','den','bin','binti','bint','al','el','le','la','du','dos','das','ibn','abu']);
+const NAMEWORD = /^\p{Lu}[\p{L}\p{M}'’-]*\p{Ll}[\p{L}\p{M}'’-]*$/u;
+const MONTH = '(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)';
+const SUFFIX = 'Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Court|Ct|Crescent|Cres|Way|Place|Pl|Terrace|Terr|Trail|Trl|Parkway|Pkwy|Circle|Cir|Square|Sq|Highway|Hwy|Close|Gardens|Grove|Row|Mews|Hill|Line|Sideroad|Concession';
+const US_STATES = 'AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC';
+
+const digits = s => s.replace(/\D/g, '');
+function luhn(num){ let sum = 0, alt = false;
+  for (let i = num.length - 1; i >= 0; i--){ let n = +num[i]; if (alt){ n *= 2; if (n > 9) n -= 9; } sum += n; alt = !alt; }
+  return sum % 10 === 0; }
+function nhsValid(d){ if (d.length !== 10) return false; let sum = 0;
+  for (let i = 0; i < 9; i++) sum += (+d[i]) * (10 - i);
+  let check = 11 - (sum % 11); if (check === 11) check = 0; return check !== 10 && check === +d[9]; }
+const before = (text, i, n = 30) => text.slice(Math.max(0, i - n), i);
+const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// pattern detectors: [type, regex, priority, check(match, text) -> type|null, group]
+const PATTERNS = [
+  ['EMAIL', /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, 10],
+  ['SSN', /\b\d{3}-\d{2}-\d{4}\b/g, 9],
+  ['NI', /\b[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z] ?\d{2} ?\d{2} ?\d{2} ?[A-D]\b/g, 9],
+  ['HEALTH_CARD', /\b\d{4}[ -]?\d{3}[ -]?\d{3}[ -]?[A-Z]{2}\b/g, 9],
+  ['HEALTH_CARD', /\b\d{4}[ -]?\d{3}[ -]?\d{3}\b/g, 9, (m, t) => /health|ohip|card|phn|msp|ramq|medicare|carte/i.test(before(t, m.index)) ? 'HEALTH_CARD' : 'ID'],
+  ['NHS', /\b\d{3}[ -]?\d{3}[ -]?\d{4}\b/g, 9, (m, t) => /nhs/i.test(before(t, m.index)) || (/health|chi|hcn/i.test(before(t, m.index)) && nhsValid(digits(m[0]))) ? 'NHS' : null],
+  ['SIN', /\b\d{3}[ -]?\d{3}[ -]?\d{3}\b/g, 9, (m, t) => luhn(digits(m[0])) || /\bsin\b|social insurance/i.test(before(t, m.index)) ? 'SIN' : 'ID'],
+  ['CARD', /\b(?:\d[ -]?){12,18}\d\b/g, 9, m => { const d = digits(m[0]); return d.length >= 13 && d.length <= 19 && luhn(d) ? 'CARD' : null; }],
+  ['PHONE', /(?:\+?1[ .-]?)?(?:\(\d{3}\)|\b\d{3})[ .-]?\d{3}[ .-]?\d{4}\b/g, 8],
+  // a leading + is a strong phone signal, so it outranks look-alike ID patterns inside it
+  ['PHONE', /\+\d{1,3}(?:[ .-]?\(?\d{1,5}\)?){2,5}/g, 9.2, m => { const n = digits(m[0]).length; return n >= 8 && n <= 15 ? 'PHONE' : null; }],
+  ['PHONE', /\b0\d{2,4}[ -]?\d{3,4}[ -]?\d{3,4}\b/g, 8, m => { const n = digits(m[0]).length; return n >= 10 && n <= 11 ? 'PHONE' : null; }],
+  ['DATE', /\b(?:19|20)\d{2}[-/.](?:0?[1-9]|1[0-2])[-/.](?:0?[1-9]|[12]\d|3[01])\b/g, 7],
+  ['DATE', /\b(?:0?[1-9]|[12]\d|3[01])[-/.](?:0?[1-9]|[12]\d|3[01])[-/.](?:(?:19|20)\d{2}|\d{2})\b/g, 7],
+  ['DATE', new RegExp('\\b' + MONTH + '\\.?\\s+\\d{1,2}(?:st|nd|rd|th)?,?\\s+(?:19|20)\\d{2}\\b', 'g'), 7],
+  ['DATE', new RegExp('\\b\\d{1,2}(?:st|nd|rd|th)?\\s+(?:of\\s+)?' + MONTH + '\\.?,?\\s+(?:19|20)\\d{2}\\b', 'g'), 7],
+  // lowercase addresses ("45 birchmount road"): only street types that aren't everyday words
+  ['ADDRESS', /\b(?:\d{1,5}-)?\d{1,5}[a-z]?\s+(?:[a-z'’.-]+\s+){0,3}?(?:street|st|road|rd|avenue|ave|boulevard|blvd|crescent|cres|parkway|pkwy|highway|hwy)\b\.?(?:\s+(?:north|south|east|west|n|s|e|w)\b)?/g, 6],
+  ['ADDRESS', new RegExp('(?:\\b(?:Flat|Apt|Apartment|Unit|Suite|Ste)\\.?\\s*[\\w-]+,?\\s+)?\\b(?:\\d{1,5}-)?\\d{1,5}[A-Za-z]?\\s+(?:[\\p{L}\'’.-]+\\s+){0,3}?(?:' + SUFFIX + ')\\b\\.?(?:\\s+(?:North|South|East|West|N|S|E|W)\\b)?(?:,?\\s*(?:Apt|Apartment|Unit|Suite|Ste|Flat|#)\\.?\\s*[\\w-]+)?', 'gu'), 6],
+  ['POSTCODE', /\b[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d\b/gi, 6],
+  ['POSTCODE', /\b(?:GIR ?0AA|[A-PR-UWYZ](?:\d[A-HJKPSTUW\d]?|[A-HK-Y]\d[ABEHMNPRV-Y\d]?) ?\d[ABD-HJLNP-UW-Z]{2})\b/g, 6],
+  ['POSTCODE', /\b\d{5}-\d{4}\b/g, 6],
+  ['POSTCODE', new RegExp('\\b(?:' + US_STATES + ')\\s+(\\d{5})\\b', 'gd'), 6, null, 1],
+  ['ID', /\b(?:client|case|file|member|account|patient|mrn|reference|ref|policy|tenant|student|record)\b\s*(?:id|no\.?|number|#)?\s*[:#]?\s*((?=[A-Z0-9-]*\d)[A-Z0-9][A-Z0-9-]{3,})\b/gid, 7, null, 1],
+  ['ID', /\b[A-Z]{1,4}-?\d{3,8}\b/g, 6],
+  ['ID', /\b\d{8,}\b/g, 5],
+];
+
+function wordTokens(text){
+  const out = [];
+  for (const m of text.matchAll(/[\p{L}\p{M}][\p{L}\p{M}'’-]*/gu)) out.push({w: m[0].replace(/['’]s$/, ''), s: m.index, e: m.index + m[0].replace(/['’]s$/, '').length});
+  return out;
+}
+function sentenceStart(text, i){
+  let j = i - 1;
+  while (j >= 0 && /[ \t"'“‘(\[]/.test(text[j])) j--;
+  if (j < 0) return true;
+  const c = text[j];
+  if (c === '\n' || c === '\r' || c === '•' || c === '*' || c === '!' || c === '?' || c === ':' || c === ';') return true;
+  if (c === '-' && (j === 0 || /\s/.test(text[j - 1]))) return true;
+  if (c === '.'){
+    const w = text.slice(Math.max(0, j - 6), j).match(/([A-Za-z]+)$/);
+    if (w && new RegExp('^(?:' + TITLES + '|St|Jr|Sr|vs|etc|e\\.g|i\\.e)$', 'i').test(w[1])) return false;
+    return true;
+  }
+  return false;
+}
+const isNameWord = w => w.length > 1 && NAMEWORD.test(w) && !STOP.has(w.toLowerCase());
+// a name typed into "Always hide" in any case ("amina rahimi", "AMINA RAHIMI") or any script still counts as a name
+const lookLikeName = s => { const ws = s.trim().split(/\s+/); return ws.length <= 4 && ws.every(w => /^[\p{L}\p{M}'’-]+$/u.test(w) || PARTICLES.has(w.toLowerCase())); };
+const norm = s => s.toLowerCase().replace(/\s+/g, ' ').trim();
+
+function detect(text, custom){
+  const cands = [];
+  const add = (s, e, type, pr, extra = {}) => { if (e > s) cands.push({s, e, type, pr, val: text.slice(s, e), sure: true, ...extra}); };
+
+  // 1. always-hide words (any script, case-insensitive)
+  const fullNames = [];
+  for (const term of custom){
+    const re = new RegExp('(?<![\\p{L}\\p{N}])' + esc(term) + '(?![\\p{L}\\p{N}])', 'giu');
+    const type = lookLikeName(term) ? 'NAME' : 'HIDDEN';
+    for (const m of text.matchAll(re)) add(m.index, m.index + m[0].length, type, 9.5, {key: type + ':' + norm(term)});
+    if (type === 'NAME' && term.trim().split(/\s+/).length > 1) fullNames.push(term.trim());
+  }
+  // 2. patterns
+  for (const [type, re, pr, check, group] of PATTERNS){
+    re.lastIndex = 0;
+    for (const m of text.matchAll(re)){
+      let t = type;
+      if (check){ t = check(m, text); if (!t) continue; }
+      if (group){ const [s, e] = m.indices[group]; add(s, e, t, pr); }
+      else add(m.index, m.index + m[0].length, t, pr);
+    }
+  }
+  // 3. names
+  const toks = wordTokens(text);
+  const gapOK = (a, b) => /^ {1,2}$/.test(text.slice(a.e, b.s));
+  const isTitle = t => new RegExp('^(?:' + TITLES + ')$').test(t.w);
+  for (let i = 0; i < toks.length; i++){
+    const t = toks[i];
+    // titles: "Ms. Okafor", "Dr Patel"
+    if (isTitle(t) && i + 1 < toks.length && /^\.? {1,2}$/.test(text.slice(t.e, toks[i + 1].s)) && isNameWord(toks[i + 1].w)){
+      let j = i + 1; while (j + 1 < toks.length && gapOK(toks[j], toks[j + 1]) && isNameWord(toks[j + 1].w)) j++;
+      add(toks[i + 1].s, toks[j].e, 'NAME', j > i + 1 ? 5.7 : 5); fullNames.push(text.slice(toks[i + 1].s, toks[j].e));
+      i = j; continue;
+    }
+    if (!isNameWord(t.w)) continue;
+    let j = i;
+    while (j + 1 < toks.length && gapOK(toks[j], toks[j + 1])){
+      const nx = toks[j + 1];
+      if (isNameWord(nx.w)) { j++; continue; }
+      if (PARTICLES.has(nx.w.toLowerCase()) && j + 2 < toks.length && gapOK(nx, toks[j + 2]) && isNameWord(toks[j + 2].w)) { j += 2; continue; }
+      break;
+    }
+    const ctx = CONTEXT.test(before(text, t.s, 25));
+    if (j > i && j - i < 4){
+      add(t.s, toks[j].e, 'NAME', 5.7); fullNames.push(text.slice(t.s, toks[j].e));
+    } else if (j === i){
+      if (ctx) add(t.s, t.e, 'NAME', 5);
+      else if (!sentenceStart(text, t.s)) add(t.s, t.e, 'NAME', 4, {sure: false});
+    }
+    i = j;
+  }
+  // 3b. words in another script inside a mostly Latin note (an Arabic or Farsi name in an English case note): probably a name
+  const latin = (text.match(/\p{Script=Latin}/gu) || []).length;
+  const other = (text.match(/[^\s\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]/gu) || []).length;
+  if (latin > other) for (const m of text.matchAll(/[^\s\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]+(?:[ \t]+[^\s\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]+){0,3}/gu)){
+    add(m.index, m.index + m[0].length, 'NAME', 4, {sure: false});
+  }
+  // 4. parts of full names used on their own ("Amina" after "Amina Rahimi")
+  const parts = new Map();
+  for (const full of fullNames){
+    const ws = full.split(/\s+/).filter(w => !PARTICLES.has(w.toLowerCase()));
+    ws.forEach((w, k) => {
+      if (w.length < 2 || STOP.has(w.toLowerCase()) || parts.has(w.toLowerCase())) return;
+      parts.set(w.toLowerCase(), {parent: 'NAME:' + norm(full), role: k === 0 ? 'FIRST' : k === ws.length - 1 ? 'LAST' : 'PART' + (k + 1)});
+    });
+  }
+  for (const [w, info] of parts){
+    const re = new RegExp('(?<![\\p{L}\\p{N}])' + esc(w) + '(?![\\p{L}\\p{N}])', 'giu');
+    for (const m of text.matchAll(re)) add(m.index, m.index + m[0].length, 'NAME', 5.5, {part: info});
+  }
+  // resolve overlaps: highest priority, then longest, wins
+  cands.sort((a, b) => b.pr - a.pr || (b.e - b.s) - (a.e - a.s) || a.s - b.s);
+  const taken = [];
+  for (const c of cands){
+    if (taken.some(t => c.s < t.e && t.s < c.e)) continue;
+    c.cat = CAT[c.type];
+    c.key = c.key || (c.part ? c.type + ':' + norm(c.val) : c.type + ':' + (['PHONE','SIN','SSN','NHS','HEALTH_CARD','CARD'].includes(c.type) ? digits(c.val) : norm(c.val)));
+    taken.push(c);
+  }
+  return taken.sort((a, b) => a.s - b.s);
+}
+
+// placeholders, numbered in reading order; name parts reuse their full name's number
+function assign(matches){
+  const byKey = new Map(), count = {}, map = new Map();
+  const next = type => (count[type] = (count[type] || 0) + 1);
+  const label = c => c.type === 'NAME' || c.type === 'HIDDEN' ? c.type : c.type;
+  for (const c of matches.filter(c => !c.part)){
+    if (!byKey.has(c.key)){ const ph = '[' + label(c) + '_' + next(label(c)) + ']'; byKey.set(c.key, ph); map.set(ph.toUpperCase(), c.val); }
+    c.ph = byKey.get(c.key);
+  }
+  for (const c of matches.filter(c => c.part)){
+    if (!byKey.has(c.key)){
+      const parent = byKey.get(c.part.parent);
+      const ph = parent ? parent.slice(0, -1) + '_' + c.part.role + ']' : '[NAME_' + next('NAME') + ']';
+      byKey.set(c.key, ph); map.set(ph.toUpperCase(), c.val);
+    }
+    c.ph = byKey.get(c.key);
+  }
+  return map;
+}
+
+// ---------- maritime layer (added on top of the Safe Paste engine) ----------
+// IMO ship numbers: 7 digits, the last is a check digit (weights 7..2 on the first six, mod 10)
+function imoValid(s){ const d = digits(s); if (d.length !== 7) return false; let sum = 0;
+  for (let i = 0; i < 6; i++) sum += (+d[i]) * (7 - i);
+  return sum % 10 === +d[6]; }
+// a captured vessel or port name is real only if it isn't made entirely of ordinary words
+const vesselOK = s => { const ws = s.replace(/["“”‘’']/g, '').trim().split(/\s+/).filter(Boolean); return ws.length > 0 && !ws.every(w => STOP.has(w.toLowerCase())); };
+// major ports by name, so "Hong Kong" or "Houston" is hidden as a port, not mistaken for a person
+// (left out on purpose: Santos, Sydney and Colon, which are also people's names or ordinary words)
+const PORTS = ['Rotterdam', 'Antwerp', 'Hamburg', 'Bremerhaven', 'Le Havre', 'Felixstowe', 'Southampton', 'Valencia', 'Algeciras', 'Barcelona',
+  'Genoa', 'Piraeus', 'Istanbul', 'Gdansk', 'Gothenburg', 'Singapore', 'Shanghai', 'Ningbo', 'Shenzhen', 'Guangzhou', 'Qingdao', 'Tianjin',
+  'Busan', 'Hong Kong', 'Kaohsiung', 'Tokyo', 'Yokohama', 'Kobe', 'Port Klang', 'Tanjung Pelepas', 'Laem Chabang', 'Ho Chi Minh City', 'Manila',
+  'Jakarta', 'Colombo', 'Chennai', 'Mumbai', 'Nhava Sheva', 'Mundra', 'Karachi', 'Jeddah', 'Jebel Ali', 'Dubai', 'Salalah', 'Durban',
+  'Cape Town', 'Lagos', 'Mombasa', 'Rio de Janeiro', 'Buenos Aires', 'Cartagena', 'Balboa', 'Manzanillo', 'Los Angeles', 'Long Beach',
+  'Oakland', 'Seattle', 'Tacoma', 'Vancouver', 'Prince Rupert', 'Houston', 'New Orleans', 'Savannah', 'Charleston', 'Norfolk', 'New York',
+  'Montreal', 'Halifax', 'Melbourne', 'Brisbane', 'Fremantle', 'Auckland'];
+const MARITIME_PATTERNS = [
+  ['PORT', new RegExp('\\b(?:' + PORTS.map(esc).join('|') + ')\\b', 'g'), 7],
+  // "pilot due at 0410": a bare 24 hour time after "at"
+  ['TIME', /\bat\s+((?:[01]\d|2[0-3])[0-5]\d)\b(?!\s*(?:m\b|metres|meters|tonnes|tons|kg|nm|miles|rpm))/gid, 6, null, 1],
+  // with their label, so the plain version reads "[IMO number]", not "IMO [IMO number]"
+  ['IMO', /\bIMO\s*(?:No\.?|number|#)?\s*[:.]?\s*\d{7}\b/gi, 9.6],
+  ['IMO', /\b\d{7}\b/g, 5.5, m => imoValid(m[0]) ? 'IMO' : null],
+  ['MMSI', /\bMMSI\s*(?:No\.?|number|#)?\s*[:.]?\s*\d{9}\b/gi, 9.6],
+  ['CALLSIGN', /\b(?:call\s?sign|c\/s)\s*[:.]?\s*[A-Z0-9]{3,7}\b/gi, 9.6],
+  // "MV Ocean Star", "M/T Example Spirit", "HMCS Halifax"
+  ['VESSEL', /\b(?:M\/V|MV|M\/T|MT|M\/S|MS|S\/S|SS|F\/V|FV|R\/V|RV|S\/V|SV|M\/Y|MY|HMCS|HMS|USS|USNS|CCGS|NOAAS)\.?\s+(["“‘']?[A-Z0-9][\p{L}\p{N}'’.-]*(?:\s+(?:[A-Z0-9][\p{L}\p{N}'’.-]*|of|de|del|la|le|el|van)){0,4}["”’']?)/gdu, 9.4, m => vesselOK(m[1]) ? 'VESSEL' : null],
+  // a quoted name after a vessel type: the tanker "Example Spirit"
+  ['VESSEL', /\b(?:vessel|ship|tanker|bulker|bulk carrier|carrier|container ship|boxship|tug|tugboat|ferry|barge|trawler|dredger|yacht|cruise ship|freighter|reefer|supply vessel|OSV|PSV|AHTS|VLCC)\s+(?:named\s+|called\s+)?["“‘']([^"”’'\n]{2,40})["”’']/gid, 9.4, null, 1],
+  ['VESSEL', /\b(?:on board|onboard|aboard)\s+(?:the\s+)?([A-Z][\p{L}'’-]+(?:\s+[A-Z][\p{L}'’-]+){0,3})/gdu, 8, m => vesselOK(m[1]) ? 'VESSEL' : null, 1],
+  ['PORT', /\b(?:port of|harbou?r of|anchorage (?:off|of)|berthed at|alongside at|arrived (?:at|in)|departed(?: from)?|sailing from|sailed from|bound for|calling at|called at|discharging (?:at|in)|loading (?:at|in)|off the coast of|approaching|off)\s+(?:the\s+)?([A-Z][\p{L}'’.-]+(?:\s+[A-Z][\p{L}'’.-]+){0,2})/gdu, 7, m => vesselOK(m[1]) ? 'PORT' : null, 1],
+  ['PORT', /\b(?:UN\/?LOCODE|LOCODE)\s*[:.]?\s*([A-Z]{2}\s?[A-Z2-9]{3})\b/gd, 9, null, 1],
+  // positions: 51°58.2'N 004°02.6'E, 51-58.2N 004-02.6E, 51.9700 N, 4.0433 E
+  ['POSITION', /\b\d{1,2}\s*[°º-]\s*\d{1,2}(?:[.,]\d+)?\s*['′]?\s*[NS]\b[\s,/]*\d{1,3}\s*[°º-]\s*\d{1,2}(?:[.,]\d+)?\s*['′]?\s*[EW]\b/g, 9.5],
+  ['POSITION', /\b\d{1,2}[.,]\d{2,}\s*°?\s*[NS]\b[\s,/]+\d{1,3}[.,]\d{2,}\s*°?\s*[EW]\b/g, 9.5],
+  // times: 0347 LT, 2210 hrs, 03:47 UTC, 14:05
+  ['TIME', /\b(?:[01]?\d|2[0-3])[:h]?[0-5]\d\s*(?:hrs?|hours|LT|UTC|GMT|Z|local time|ship'?s time)\b/gi, 7.5],
+  ['TIME', /\b(?:[01]?\d|2[0-3]):[0-5]\d\b/g, 6.5],
+  // dates without a year: "14 March", "March 14th"
+  ['DATE', new RegExp('\\b' + MONTH + '\\.?\\s+\\d{1,2}(?:st|nd|rd|th)?\\b', 'g'), 6.5],
+  ['DATE', new RegExp('\\b\\d{1,2}(?:st|nd|rd|th)?\\s+(?:of\\s+)?' + MONTH + '\\b', 'g'), 6.5],
+];
+PATTERNS.unshift(...MARITIME_PATTERNS);
+
+// ---------- page ----------
+const $ = id => document.getElementById(id);
+const state = {custom: [], off: new Set(), matches: []};
+const htmlEsc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cats = () => new Set([...document.querySelectorAll('[data-cat]')].filter(x => x.checked).map(x => x.dataset.cat).concat('hidden'));
+
+// plain words for posting: people, vessels and ports get letters (Person A, Vessel B); everything else a short tag
+const LETTERED = {NAME: 'Person', VESSEL: 'Vessel', PORT: 'Port'};
+const TAG = {IMO: '[IMO number]', MMSI: '[MMSI]', CALLSIGN: '[call sign]', POSITION: '[position]', TIME: '[time]', DATE: '[date]',
+  EMAIL: '[email]', PHONE: '[phone]', ADDRESS: '[address]', POSTCODE: '[address]', HIDDEN: '[hidden]'};
+function plainWord(ph){
+  const m = ph.match(/^\[([A-Z]+(?:_[A-Z]+)?)_(\d+)(?:_(?:FIRST|LAST|PART\d+))?\]$/);
+  if (!m) return '[hidden]';
+  const [, type, n] = m;
+  if (LETTERED[type]) return LETTERED[type] + ' ' + (+n <= 26 ? String.fromCharCode(64 + +n) : n);
+  return TAG[type] || '[ID number]';
+}
+
+function run(){
+  const text = $('input').value;
+  const on = cats();
+  const all = text ? detect(text, state.custom).filter(c => on.has(c.cat)) : [];
+  const active = all.filter(c => !state.off.has(c.key));
+  assign(active);
+  state.matches = all;
+  const plain = $('style-plain').checked;
+  const shown = c => plain ? plainWord(c.ph) : c.ph;
+  if (!text){ $('preview').innerHTML = '<span class="empty">Your story will show up here with the identifying details highlighted.</span>'; }
+  else {
+    let h = '', at = 0;
+    for (const c of all){
+      h += htmlEsc(text.slice(at, c.s));
+      const off = state.off.has(c.key);
+      h += '<mark tabindex="0" role="button" aria-pressed="' + !off + '" class="c-' + c.cat + (c.sure ? '' : ' possible') + (off ? ' off' : '') +
+           '" data-key="' + htmlEsc(c.key) + '" title="' + (off ? 'Will stay visible. Click to hide.' : 'Becomes ' + htmlEsc(c.ph ? shown(c) : '') + '. Click to keep visible.') + '">' + htmlEsc(c.val) + '</mark>';
+      at = c.e;
+    }
+    $('preview').innerHTML = h + htmlEsc(text.slice(at));
+  }
+  const uniq = {}; for (const c of active) (uniq[c.cat] = uniq[c.cat] || new Set()).add(c.ph.replace(/_(?:FIRST|LAST|PART\d+)\]$/, ']'));
+  $('legend').innerHTML = Object.keys(uniq).map(k => '<li class="c-' + k + '">' + LABEL[k] + ': ' + uniq[k].size + '</li>').join('');
+  const n = active.length;
+  $('summary').textContent = text ? (n ? n + (n === 1 ? ' detail' : ' details') + ' will be hidden.' : 'Nothing found to hide. Read your story yourself before you share it.') : '';
+  let out = '', at2 = 0;
+  for (const c of active){ out += text.slice(at2, c.s) + shown(c); at2 = c.e; }
+  $('output').value = text ? out + text.slice(at2) : '';
+  $('copyout').disabled = !text;
+}
+let timer; const later = () => { clearTimeout(timer); timer = setTimeout(run, 200); };
+
+function renderChips(){
+  $('chips').innerHTML = state.custom.map((t, i) => '<span class="chip">' + htmlEsc(t) + '<button type="button" aria-label="Stop hiding ' + htmlEsc(t) + '" data-i="' + i + '">×</button></span>').join('');
+}
+function addTerm(t){
+  t = (t || '').replace(/\s+/g, ' ').trim();
+  if (t.length < 2 || state.custom.some(x => x.toLowerCase() === t.toLowerCase())) return;
+  state.custom.push(t); renderChips(); run();
+}
+async function copy(text, flag){
+  try { await navigator.clipboard.writeText(text); }
+  catch { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  $(flag).hidden = false; setTimeout(() => $(flag).hidden = true, 1600);
+}
+
+$('input').addEventListener('input', later);
+document.querySelectorAll('[data-cat]').forEach(x => x.addEventListener('change', run));
+document.querySelectorAll('input[name="style"]').forEach(x => x.addEventListener('change', run));
+$('clear').addEventListener('click', () => { $('input').value = ''; state.off.clear(); run(); $('input').focus(); });
+$('example').addEventListener('click', () => {
+  $('input').value =
+`NEAR MISS (made up example)
+
+On 14 March 2026 at 0347 LT, MV Demo Star (IMO 1234567, MMSI 123456789, call sign AB1CD) was approaching Rotterdam with the pilot due at 0410.
+Chief Officer Petrov had the watch with AB Santos as lookout. Our position was 51°58.2'N 004°02.6'E.
+A fishing vessel crossed ahead at less than 3 cables. Petrov called the Master, Captain Lindqvist, who took the con and ordered hard to starboard.
+Nobody was hurt. The lesson: the ECDIS guard zone had been switched off after the last port, and nobody checked it at the handover.`;
+  state.off.clear(); run();
+});
+$('preview').addEventListener('click', e => {
+  const m = e.target.closest('mark'); if (!m) return;
+  const k = m.dataset.key; state.off.has(k) ? state.off.delete(k) : state.off.add(k); run();
+});
+$('preview').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('mark')){ e.preventDefault(); e.target.click(); } });
+document.addEventListener('selectionchange', () => {
+  const sel = window.getSelection();
+  $('hidesel').disabled = !(sel && !sel.isCollapsed && $('preview').contains(sel.anchorNode) && sel.toString().trim().length > 1);
+});
+$('hidesel').addEventListener('mousedown', e => e.preventDefault());
+$('hidesel').addEventListener('click', () => { addTerm(window.getSelection().toString()); window.getSelection().removeAllRanges(); });
+$('addterm').addEventListener('click', () => { addTerm($('term').value); $('term').value = ''; });
+$('term').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('addterm').click(); } });
+$('chips').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if (!b) return; state.custom.splice(+b.dataset.i, 1); renderChips(); run(); });
+$('copyout').addEventListener('click', () => copy($('output').value, 'copied1'));
+
+// theme toggle (remembered on this device only)
+const root = document.documentElement;
+function setTheme(t){ root.dataset.theme = t; $('theme').textContent = t === 'dark' ? 'Light mode' : 'Dark mode'; try { localStorage.setItem('sr-theme', t); } catch {} }
+let saved = null; try { saved = localStorage.getItem('sr-theme'); } catch {}
+setTheme(saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+$('theme').addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+// live proof: count every network request this page makes after loading (should stay 0)
+let reqs = 0, blocked = 0;
+const showReqs = () => { $('reqs').textContent = reqs + (blocked ? ' (and ' + blocked + ' blocked)' : ''); };
+try {
+  const seen = e => { if (!/^(data|blob|about):/.test(e.name)){ reqs++; showReqs(); } };
+  performance.getEntriesByType('resource').forEach(seen);
+  new PerformanceObserver(list => list.getEntries().forEach(seen)).observe({type: 'resource'});
+} catch {}
+document.addEventListener('securitypolicyviolation', () => { blocked++; showReqs(); });
+const net = () => { $('net').textContent = navigator.onLine ? '' : 'Your wifi is off, and it still works.'; $('live').classList.toggle('offline', !navigator.onLine); };
+addEventListener('online', net); addEventListener('offline', net); net();
+
+window.SafeReport = {detect, assign, plainWord}; // for testing
+run();
+</script>
+</body>
+</html>

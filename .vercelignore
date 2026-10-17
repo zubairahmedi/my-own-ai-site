@@ -1,0 +1,4 @@
+.env
+.env.*
+vercel_*.json
+*.skill.md
