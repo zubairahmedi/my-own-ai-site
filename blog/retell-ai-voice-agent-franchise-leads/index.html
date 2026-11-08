@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How We Built a Franchise AI Voice Agent With Retell AI</title>
+<meta name="description" content="A builder&#x27;s account of an AI voice agent for franchise leads on Retell AI and GoHighLevel, covering the setup, the real call data and what went wrong.">
+<link rel="canonical" href="https://zehaanai.com/blog/retell-ai-voice-agent-franchise-leads/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ZehaanAI">
+<meta property="og:title" content="How We Built a Franchise AI Voice Agent With Retell AI">
+<meta property="og:description" content="A builder&#x27;s account of an AI voice agent for franchise leads on Retell AI and GoHighLevel, covering the setup, the real call data and what went wrong.">
+<meta property="og:url" content="https://zehaanai.com/blog/retell-ai-voice-agent-franchise-leads/">
+<meta property="og:image" content="https://zehaanai.com/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0c0e">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://zehaanai.com/#org", "name": "ZehaanAI", "url": "https://zehaanai.com/", "logo": "https://zehaanai.com/assets/favicon.svg", "email": "enquiries@zehaanai.com", "founder": {"@id": "https://zehaanai.com/about/#zehaan"}, "sameAs": ["https://www.linkedin.com/in/zehaankhan/"], "description": "AI systems for franchise development: speed to lead, follow-up, one CRM, full-data dashboards and an AI RevOps Engine."}, {"@type": "Person", "@id": "https://zehaanai.com/about/#zehaan", "name": "Zehaan Khan", "url": "https://zehaanai.com/about/", "image": "https://zehaanai.com/assets/zehaan.jpg", "description": "Building AI automation since 2023 and franchise lead systems since 2024. Certified Retell AI partner.", "jobTitle": "Founder", "worksFor": {"@id": "https://zehaanai.com/#org"}, "sameAs": ["https://www.linkedin.com/in/zehaankhan/"], "knowsAbout": ["Franchise development", "Speed to lead", "AI voice agents", "GoHighLevel", "Revenue operations"]}, {"@type": "BlogPosting", "headline": "How We Built an AI Voice Agent for Franchise Leads With Retell AI", "description": "A builder's account of an AI voice agent for franchise leads on Retell AI and GoHighLevel, covering the setup, the real call data and what went wrong.", "datePublished": "2026-11-08", "dateModified": "2026-11-08", "mainEntityOfPage": "https://zehaanai.com/blog/retell-ai-voice-agent-franchise-leads/", "url": "https://zehaanai.com/blog/retell-ai-voice-agent-franchise-leads/", "image": "https://zehaanai.com/assets/og.png", "author": {"@id": "https://zehaanai.com/about/#zehaan"}, "publisher": {"@id": "https://zehaanai.com/#org"}, "keywords": "AI voice agent franchise leads"}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://zehaanai.com/"}, {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://zehaanai.com/blog/"}, {"@type": "ListItem", "position": 3, "name": "How We Built an AI Voice Agent for Franchise Leads With Retell AI", "item": "https://zehaanai.com/blog/retell-ai-voice-agent-franchise-leads/"}]}]}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top"><div class="wrap">
+  <a class="logo" href="/">Zehaan<span>AI</span></a>
+  <nav aria-label="Main">
+    <a href="/case-study/">Case study</a>
+    <a class="hide-sm" href="/tools/franchise-cost-per-sale-calculator/">Free tools</a>
+    <a href="/blog/">Blog</a>
+    <a class="hide-sm" href="/about/">About</a>
+    <a class="nav-cta" href="/#teardown">Free teardown</a>
+  </nav>
+</div></header>
+<main id="main">
+<article class="wrap post">
+<nav class="crumb" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/blog/">Blog</a></nav>
+<h1>How We Built an AI Voice Agent for Franchise Leads With Retell AI</h1>
+<p class="byline">By <a href="/about/">Zehaan Khan</a> &middot; <time datetime="2026-11-08">2026-11-08</time> &middot; 4 min read</p>
+<p>We've been building AI automation since 2023 and franchise lead systems since 2024. This is how we built the AI voice agent behind our <a href="/case-study/">case study</a>, including the parts that went wrong.</p>
+<p>Disclosure: we're a certified Retell AI partner, so take that into account. You can see it on <a href="https://www.linkedin.com/in/zehaankhan/" rel="noopener">Zehaan's LinkedIn</a>.</p>
+<h2>What the agent's job is</h2>
+<p>The agent has a narrow job. It reaches a new franchise lead, finds out if they're serious and books the next step. It doesn't sell the franchise.</p>
+<p>On every call, it tries to capture:</p>
+<ul>
+<li>Investment range, in bands</li>
+<li>Self-reported credit</li>
+<li>The franchise they're interested in</li>
+<li>Veteran status, for discount programs</li>
+<li>When they want to buy</li>
+<li>The next step: book, call back or text</li>
+</ul>
+<h2>The stack</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Facebook ads, website forms, feeds</td>
+<td>Where leads come from</td>
+</tr>
+<tr>
+<td>GoHighLevel</td>
+<td>The CRM, where every lead lands</td>
+</tr>
+<tr>
+<td>Make</td>
+<td>Connects the CRM to the calling platform</td>
+</tr>
+<tr>
+<td>Retell AI</td>
+<td>Runs the voice agent</td>
+</tr>
+<tr>
+<td>GoHighLevel workflows</td>
+<td>Follow-up after the call</td>
+</tr>
+</tbody>
+</table></div>
+<figure><img src="/assets/ai-follow-up-call-workflow.png" width="1400" height="760" alt="A GoHighLevel workflow called AI Follow Up Call, with branches that update contact fields, wait and move the lead on." loading="lazy"><figcaption>The AI follow-up call workflow inside GoHighLevel.</figcaption></figure>
+
+<h2>How a call flows</h2>
+<ol>
+<li>A new lead lands in GoHighLevel from any source.</li>
+<li>A workflow checks the lead and triggers the call through Make.</li>
+<li>Retell places the call, and the agent has the conversation.</li>
+<li>When the call is analyzed, Retell sends a webhook with the result.</li>
+<li>Make writes each answer into its own CRM field.</li>
+<li>A tag starts the follow-up workflow, based on what the person said.</li>
+</ol>
+<p>If you're building this, trigger step 5 on Retell's <code>call_analyzed</code> event. At <code>call_ended</code>, the transcript and analysis may not be ready yet.</p>
+<h2>Pull answers into fields</h2>
+<p>The most useful thing we did was treat every call as data. A transcript sitting in a notes field helps nobody. An "Available Capital" field can be filtered, routed and reported on.</p>
+<p>Define your post-call fields before you write the prompt. Then write the prompt to collect those answers.</p>
+<h2>What the data showed</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Measure</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Calls placed by the AI</td>
+<td>5,379</td>
+</tr>
+<tr>
+<td>Unique leads worked</td>
+<td>1,733</td>
+</tr>
+<tr>
+<td>Connect rate</td>
+<td>77%</td>
+</tr>
+<tr>
+<td>Live talk time</td>
+<td>61.8 hours</td>
+</tr>
+<tr>
+<td>Average call length</td>
+<td>About 41 seconds</td>
+</tr>
+<tr>
+<td>Latency</td>
+<td>About 1.3 to 1.4 seconds</td>
+</tr>
+</tbody>
+</table></div>
+<figure><img src="/assets/ai-calling-analytics.png" width="1400" height="512" alt="Calling platform analytics showing 1,706 calls, a 42 second average duration, 1,321 millisecond latency and 1,125 successful calls." loading="lazy"><figcaption>AI calling analytics from the voice platform, January to August 2026. One card hidden.</figcaption></figure>
+
+<p>The average call is short. That number includes quick hang-ups and fast no's. So don't expect every call to be a deep conversation.</p>
+<p>Retell lists its voice agents at <a href="https://www.retellai.com/pricing" rel="noopener">$0.07 to $0.31 a minute</a>, depending on the models you choose.</p>
+<h2>What went wrong</h2>
+<p><strong>We counted calls as people.</strong> Our first reports said 1,385 people asked for a callback. Those were calls, and one person can ask twice. We fixed the language everywhere.</p>
+<p><strong>We claimed too much coverage.</strong> Early copy said the AI called every lead. It worked 1,733 unique leads, while roughly 750 arrived each month. We dropped that claim.</p>
+<p><strong>A dated comparison flattered us.</strong> Our 2024 lead count included a one-time CRM import, so we stopped comparing lead volume and conversion rate.</p>
+<p><strong>The platform changes under you.</strong> Retell retired <code>POST /v2/list-calls</code> on June 15, 2026. The replacement, <code>/v3/list-calls</code>, returns results inside an <code>items</code> object, which can break any scenario that expects a plain list. Read deprecation notices, or your reports will quietly stop.</p>
+<p><strong>We still haven't measured seconds to first dial.</strong> That needs each call matched to the lead's created time, and we haven't finished it. So we don't publish a number.</p>
+<h2>The rules we build around</h2>
+<p>An AI caller needs consent that covers AI voice, needs to say it's an AI, and can't talk earnings. Our <a href="/blog/ai-voice-franchise-leads-compliance/">compliance guide</a> covers all of it, and you should have an attorney review your setup.</p>
+<h2>Is it worth building?</h2>
+<p>For this firm, booked appointments went from an average of 89 a month to 163, and show rate from 32% to 41%. This was consultant network leads, and other things changed too, so read the <a href="/case-study/">full case study</a> before you draw conclusions.</p>
+<p>If you want to know whether you need this at all, start by seeing how fast your team responds today with a <a href="/#teardown">free inquiry teardown</a>.</p>
+<aside class="author">
+  <img src="/assets/zehaan.jpg" width="72" height="72" alt="Zehaan Khan" loading="lazy">
+  <div>
+    <p class="who"><a href="/about/">Zehaan Khan</a></p>
+    <p>Building AI automation since 2023 and franchise lead systems since 2024. Certified Retell AI partner.</p>
+    <p class="links"><a href="https://www.linkedin.com/in/zehaankhan/" rel="noopener">Follow on LinkedIn</a><a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fzehaanai.com%2Fblog%2Fretell-ai-voice-agent-franchise-leads%2F" rel="noopener">Share on LinkedIn</a></p>
+  </div>
+</aside>
+<aside class="box">
+  <p class="label">The case study</p>
+  <h2>89 to 163 booked appointments a month</h2>
+  <p>Show rate up from 32% to 41%, on 5,379 AI calls for a franchise consulting firm. Consultant network leads, before and after. Other things changed too.</p>
+  <a class="btn" href="/case-study/">Read the case study</a>
+</aside>
+<aside class="box alt">
+  <p class="label">Free</p>
+  <h2>How fast did your team reply to your last inquiry?</h2>
+  <p>We send one inquiry to your brand, disclosed as research, and show you where you sit against published benchmarks.</p>
+  <a class="btn" href="/#teardown">Get the teardown</a>
+</aside>
+<section class="related"><h2>Keep reading</h2><ul><li><a href="/blog/franchise-speed-to-lead/">Franchise Speed to Lead: What the Data Actually Says</a></li><li><a href="/blog/franchise-lead-follow-up/">Franchise Lead Follow-Up: A System That Doesn&#x27;t Depend on Memory</a></li><li><a href="/blog/franchise-lead-sources-one-crm/">One CRM for Every Franchise Lead Source</a></li></ul></section>
+</article>
+</main>
+<footer><div class="wrap foot">
+  <div><a class="logo" href="/">Zehaan<span>AI</span></a><p>AI systems for franchise development. Greater Toronto Area.</p></div>
+  <ul>
+    <li><a href="/case-study/">Case study</a></li>
+    <li><a href="/blog/">Blog</a></li>
+    <li><a href="/about/">About</a></li>
+    <li><a href="/tools/franchise-cost-per-sale-calculator/">Cost per sale calculator</a></li>
+    <li><a href="/#teardown">Free teardown</a></li>
+    <li><a href="/privacy/">Privacy</a></li>
+    <li><a href="https://www.linkedin.com/in/zehaankhan/" rel="noopener">Follow on LinkedIn</a></li>
+    <li><a href="mailto:enquiries@zehaanai.com">enquiries@zehaanai.com</a></li>
+  </ul>
+</div></footer>
+<script src="/assets/site.js" defer></script>
+</body>
+</html>
