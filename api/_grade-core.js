@@ -85,7 +85,13 @@ function toText(html) {
 
 const EMBED_FORM = /hsforms|hs-form|hbspt\.forms|typeform|jotform|gravityform|wpforms|formstack|cognitoforms|leadconnector|msgsndr|marketo|mktoForm|pardot|fransmart|franconnect|wufoo|formassembly|ninja-forms|elementor-form|wpcf7/i;
 
-const INQUIRY_LINK = /<a\b[^>]*href=["'][^"']*(contact|inquir|enquir|request|apply|get-started|learn-more)[^"']*["'][^>]*>[\s\S]{0,120}?(request|apply|inquire|enquire|get started|learn more|contact us)/i;
+const INQUIRY_LINK = /<a\b[^>]*href=["'][^"']*(contact|inquir|enquir|request|apply|get-started|learn-more)[^"']*["'][^>]*>[\s\S]{0,120}?(request|apply|inquire|enquire|get started|learn more|contact|get in touch|connect|talk to)/i;
+
+const CONSENT_IN_FORM = /consent|agree|opt[\s-]?in|text messages?|\bsms\b|receive (calls|texts|messages)/i;
+
+function inquiryForms(html) {
+  return (String(html).match(/<form\b[\s\S]*?<\/form>/gi) || []).filter(f => /type=["']?(email|tel)|name=["'][^"']*(email|phone)/i.test(f));
+}
 
 function hasMoneyNear(text) {
   const re = /(investment|franchise fee|liquid (capital|assets)|cash required|capital required)/gi;
@@ -109,13 +115,14 @@ const CHECKS = [
   { id: 'phone', label: 'A phone number to call', weight: 10, benchmark: `55% of brands in the ${SHOP} published a development phone number`, fix: 'Publish a development phone number that reaches someone who can handle an inquiry.',
     test: p => /href=["']tel:/i.test(p.html) || /(\+?1[\s.-]?)?\(?\b\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}\b/.test(p.text) },
   { id: 'consent', label: 'Consent wording for calls and texts', weight: 10, fix: 'Add clear consent wording near the form that names your brand and covers calls and texts.',
-    test: p => /by (submitting|clicking|providing|checking)|i (agree|consent)|consent to|agree to receive|message (and|&) data rates|msg (&|and) data|autodial|tcpa/i.test(p.text) },
+    test: p => /by (submitting|clicking|providing|checking)|i (agree|consent)|consent to|agree to receive|message (and|&) data rates|msg (&|and) data|autodial|tcpa/i.test(p.text) || CONSENT_IN_FORM.test(inquiryForms(p.html).map(toText).join(' ')),
+    unknownIf: p => !inquiryForms(p.html).length },
   { id: 'privacy', label: 'Privacy policy link', weight: 5, fix: 'Link your privacy policy from the page.',
     test: p => /privacy/i.test(p.text) || /href=["'][^"']*privacy/i.test(p.html) },
   { id: 'cta', label: 'A clear next step', weight: 5, fix: 'Add one clear button, like "Request information", and repeat it down the page.',
-    test: p => /request (info|more|a)|get started|learn more|apply now|inquire|enquire|download|start your|contact us|free (info|guide|consult)|speak with|schedule a|talk to/i.test(p.text) },
+    test: p => /request (info|more|a)|get started|learn more|apply now|inquire|enquire|download|start your|contact us|free (info|guide|consult)|speak with|schedule a|talk to/i.test(p.text) || INQUIRY_LINK.test(p.html) },
   { id: 'proof', label: 'Proof from owners or rankings', weight: 5, fix: 'Show real owner stories or independent rankings. Keep them free of earnings claims.',
-    test: p => /testimonial|franchisee (stories|spotlight|success|reviews?)|hear from|what (our|other) (franchisees|owners)|our (franchisees|owners) say|franchise business review|franchise 500|top franchise|ranked/i.test(p.text) },
+    test: p => /testimonial|franchisee (stories|spotlight|success|reviews?)|hear from|what (our|other) (franchisees|owners)|our (franchisees|owners) say|franchise business review|franchise 500|top franchise|ranked|\breviews\b|\bstories\b|spotlight/i.test(p.text) },
   { id: 'process', label: 'The steps to ownership', weight: 5, fix: 'Lay out the steps from first call to signed agreement, so candidates know what to expect.',
     test: p => /discovery day|steps? to (owner|franchise|becom|get|join)|the process|how it works|path to ownership|franchise process|our process|road to ownership/i.test(p.text) },
   { id: 'video', label: 'A video', weight: 5, fix: 'Add a short video from leadership or an owner.',
@@ -126,10 +133,16 @@ const CHECKS = [
 
 function analyze(html, url) {
   const page = { html: String(html), text: toText(html), url };
-  const checks = CHECKS.map(c => ({ id: c.id, label: c.label, weight: c.weight, pass: !!c.test(page), fix: c.fix, benchmark: c.benchmark || null }));
-  const earned = checks.reduce((n, c) => n + (c.pass ? c.weight : 0), 0);
-  const fixes = checks.filter(c => !c.pass).sort((a, b) => b.weight - a.weight).slice(0, 3).map(c => ({ id: c.id, label: c.label, fix: c.fix }));
-  return { score: earned, label: earned >= 80 ? 'Strong' : earned >= 60 ? 'Solid, with gaps' : earned >= 40 ? 'Leaking candidates' : 'Needs work', checks, fixes, words: page.text.split(' ').length };
+  const checks = CHECKS.map(c => {
+    const pass = !!c.test(page);
+    return { id: c.id, label: c.label, weight: c.weight, pass, unknown: !pass && !!(c.unknownIf && c.unknownIf(page)), fix: c.fix, benchmark: c.benchmark || null };
+  });
+  const counted = checks.filter(c => !c.unknown);
+  const possible = counted.reduce((n, c) => n + c.weight, 0);
+  const earned = counted.reduce((n, c) => n + (c.pass ? c.weight : 0), 0);
+  const score = possible ? Math.round(earned / possible * 100) : 0;
+  const fixes = counted.filter(c => !c.pass).sort((a, b) => b.weight - a.weight).slice(0, 3).map(c => ({ id: c.id, label: c.label, fix: c.fix }));
+  return { score, label: score >= 80 ? 'Strong' : score >= 60 ? 'Solid, with gaps' : score >= 40 ? 'Leaking candidates' : 'Needs work', checks, fixes, words: page.text.split(' ').length };
 }
 
 function isDevPage(html, url) {

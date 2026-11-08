@@ -307,7 +307,7 @@ pre{background:var(--bg);border:1px solid var(--border-2);border-radius:10px;pad
 .post .check-list li:last-child{border-bottom:0}
 .check-list i{font-style:normal;font-weight:700;width:18px;flex:none}
 .check-list .pass i{color:var(--accent)}
-.check-list .miss i{color:var(--muted)}
+.check-list .miss i,.check-list .unk i{color:var(--muted)}
 .check-list b{color:var(--text)}
 .check-list p{font-size:14.5px;line-height:1.4;margin-top:2px}
 @media (max-width:560px){.grade-row{flex-direction:column}.grade-row .btn{width:100%}}

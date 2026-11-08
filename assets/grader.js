@@ -42,11 +42,11 @@
     var list = $('gChecks');
     list.textContent = '';
     r.checks.forEach(function (c) {
-      var li = el('li', c.pass ? 'pass' : 'miss');
-      li.appendChild(el('i', null, c.pass ? '✓' : '✕'));
+      var li = el('li', c.pass ? 'pass' : c.unknown ? 'unk' : 'miss');
+      li.appendChild(el('i', null, c.pass ? '✓' : c.unknown ? '?' : '✕'));
       var body = el('div');
       body.appendChild(el('b', null, c.label));
-      body.appendChild(el('p', null, (c.pass ? 'Found.' : "We couldn't find this on the pages we read.") + (c.benchmark ? ' ' + c.benchmark + '.' : '')));
+      body.appendChild(el('p', null, (c.pass ? 'Found.' : c.unknown ? "We couldn't see the form itself, so we can't check its wording. Left out of the score." : "We couldn't find this on the pages we read.") + (c.benchmark ? ' ' + c.benchmark + '.' : '')));
       li.appendChild(body);
       list.appendChild(li);
     });
