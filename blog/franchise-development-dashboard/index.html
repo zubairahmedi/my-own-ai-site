@@ -39,12 +39,16 @@
 <article class="wrap post">
 <nav class="crumb" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/blog/">Blog</a></nav>
 <h1>The Franchise Development Dashboard: What to Track and Why</h1>
-<p class="byline">By <a href="/about/">Zehaan Khan</a> &middot; <time datetime="2026-11-08">2026-11-08</time> &middot; 3 min read</p>
+<p class="byline">By <a href="/about/">Zehaan Khan</a> &middot; <time datetime="2026-11-08">2026-11-08</time> &middot; 4 min read</p>
+<aside class="tldr"><p class="label">The short version</p><ul><li>A dashboard should show where candidates are stuck and whose pipeline they're in.</li><li>Split every number by consultant. Totals hide the useful part.</li><li>Define each metric once and calculate it in code.</li></ul></aside>
+
+<nav class="toc" aria-label="On this page"><p class="label">On this page</p><ul><li><a href="#the-numbers-worth-tracking">The numbers worth tracking</a></li><li><a href="#show-every-number-by-consultant">Show every number by consultant</a></li><li><a href="#four-ways-dashboards-go-wrong">Four ways dashboards go wrong</a></li><li><a href="#how-ours-is-built">How ours is built</a></li><li><a href="#where-a-dashboard-stops">Where a dashboard stops</a></li></ul></nav>
+
 <p>A good franchise development dashboard answers one question: where are candidates getting stuck, and whose pipeline is it in?</p>
 <p>For the firm in our <a href="/case-study/">case study</a>, we built one that pulls leads, appointments, referrals and sources by consultant on an automatic schedule. Nobody builds a report by hand anymore. Here's what we'd put on yours.</p>
 <figure><img src="/assets/dashboard-franchise-analytics.png" width="1400" height="521" alt="Franchise analytics dashboard showing total leads, appointments, conversion rate and confirmed meetings for the last 30 days, with the top rep for each measure." loading="lazy"><figcaption>The live dashboard for one firm, last 30 days. Client name and rep names hidden.</figcaption></figure>
 
-<h2>The numbers worth tracking</h2>
+<h2 id="the-numbers-worth-tracking">The numbers worth tracking</h2>
 <div class="tbl"><table>
 <thead>
 <tr>
@@ -98,23 +102,25 @@
 </table></div>
 <p>The AFDR and FranConnect figures measure different groups in different ways, so compare yourself to each one separately. Don't average them.</p>
 <p>Show rate and lead to appointment are the two we weight most early on, because you see them in weeks. A signed deal takes about 24 weeks to show up.</p>
-<h2>Show every number by consultant</h2>
+<figure class="viz v-flow"><figcaption class="viz-t">How fast each number moves</figcaption><ol><li><b>Minutes</b><span>Time to first touch</span></li><li><b>Days</b><span>Contact rate</span></li><li><b>Weeks</b><span>Lead to appointment, show rate</span></li><li><b>About 24 weeks</b><span>Signed agreements</span></li></ol></figure>
+
+<h2 id="show-every-number-by-consultant">Show every number by consultant</h2>
 <p>Totals hide the most useful information. In our work, one person's book can look completely different from the rest of the team's once you split it out.</p>
 <p>Rep-level views should show leads assigned, first-touch time, appointments, show rate and deals. The point isn't to punish anyone. Usually you'll find something to copy from your best performer.</p>
 <figure><img src="/assets/dashboard-meta-ads.png" width="1400" height="523" alt="Meta Ads dashboard page showing impressions, clicks and cost per lead, with spend hidden." loading="lazy"><figcaption>Ad data sits next to the pipeline in the same dashboard. Spend hidden.</figcaption></figure>
 
-<h2>Four ways dashboards go wrong</h2>
-<p><strong>Counting calls as people.</strong> Our call data showed 1,385 callback requests, and those are calls. One person can ask twice. We say so in the <a href="/case-study/">case study</a>, because the difference matters.</p>
-<p><strong>Comparing against an import.</strong> If you loaded old contacts into your CRM one month, that month's lead count is fake. Our 2024 data had this problem, so we dropped the comparison.</p>
-<p><strong>Missing calendars.</strong> We found one rep's appointments were being under-counted because of how a personal calendar was set up. If a rep's numbers look oddly low, check the plumbing before you have the conversation.</p>
-<p><strong>Empty outcome fields.</strong> If nobody records whether a meeting happened, your show rate is a guess. Make the outcome required.</p>
-<h2>How ours is built</h2>
+<h2 id="four-ways-dashboards-go-wrong">Four ways dashboards go wrong</h2>
+<figure class="viz v-cards c2"><figcaption class="viz-t">Four ways dashboards go wrong</figcaption><ul><li><b>Counting calls as people</b><p>1,385 callback requests were calls. One person can ask twice.</p></li><li><b>Comparing against an import</b><p>Loading old contacts makes that month's lead count fake.</p></li><li><b>Missing calendars</b><p>One rep's appointments were under-counted because of a personal calendar setup.</p></li><li><b>Empty outcome fields</b><p>If nobody records whether a meeting happened, show rate is a guess.</p></li></ul></figure>
+
+<h2 id="how-ours-is-built">How ours is built</h2>
 <p>The setup is simple. Scheduled <a href="https://n8n.io/" rel="noopener">n8n</a> workflows pull from the CRM and calendars, calculate the numbers per consultant and store the results. The dashboard reads from that store.</p>
+<figure class="viz v-flow"><figcaption class="viz-t">How ours is built</figcaption><ol><li><b>CRM and calendars</b><span>Where the data lives</span></li><li><b>n8n on a schedule</b><span>Pulls it automatically</span></li><li><b>Math in code</b><span>Per consultant</span></li><li><b>Database</b><span>Stores the results</span></li><li><b>Dashboard</b><span>Reads from the store</span></li></ol></figure>
+
 <p>Doing the math in code means the same question always gets the same answer. If two people pull a number and get two results, the team stops trusting the dashboard.</p>
 <figure><img src="/assets/n8n-appointments-per-consultant.png" width="1400" height="427" alt="An n8n workflow on a schedule that pulls appointments per consultant from the CRM and writes them to a database." loading="lazy"><figcaption>One of the scheduled workflows behind the dashboard. It counts appointments per consultant. Names hidden.</figcaption></figure>
 
 <p>None of this works without <a href="/blog/franchise-lead-sources-one-crm/">every source in one CRM</a>.</p>
-<h2>Where a dashboard stops</h2>
+<h2 id="where-a-dashboard-stops">Where a dashboard stops</h2>
 <p>A dashboard only answers the questions you thought to build a chart for. The biggest leaks tend to be in questions nobody asked, such as which qualified candidates never got a meeting.</p>
 <p>That's the job of the <a href="/blog/ai-revops-franchise-development/">AI RevOps Engine</a>, which reads the same data and lets you ask anything.</p>
 <p>For the results this setup supported, including what we won't claim, read the <a href="/case-study/">case study</a>.</p>

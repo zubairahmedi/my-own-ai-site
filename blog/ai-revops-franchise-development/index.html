@@ -40,6 +40,10 @@
 <nav class="crumb" aria-label="Breadcrumb"><a href="/">Home</a> / <a href="/blog/">Blog</a></nav>
 <h1>AI RevOps for Franchise Development: What It Is and What It Finds</h1>
 <p class="byline">By <a href="/about/">Zehaan Khan</a> &middot; <time datetime="2026-11-08">2026-11-08</time> &middot; 3 min read</p>
+<aside class="tldr"><p class="label">The short version</p><ul><li>AI RevOps means asking where the money is going and getting the number behind the answer.</li><li>The AI never does the math. Code does.</li><li>It's read-only until your team approves an action.</li></ul></aside>
+
+<nav class="toc" aria-label="On this page"><p class="label">On this page</p><ul><li><a href="#how-it-differs-from-a-dashboard">How it differs from a dashboard</a></li><li><a href="#how-it-differs-from-pasting-data-into-chatgpt">How it differs from pasting data into ChatGPT</a></li><li><a href="#what-it-tends-to-find">What it tends to find</a></li><li><a href="#from-analyze-to-act">From analyze to act</a></li><li><a href="#what-it-needs-from-you">What it needs from you</a></li></ul></nav>
+
 <p>AI RevOps means pointing an AI at everything your revenue team touches, so you can ask where the money is going and get a straight answer with the numbers behind it.</p>
 <p>In franchise development, that means your CRM, calendars, pipeline, calls and ad spend. We built one and ran it on the live data of the firm in our <a href="/case-study/">case study</a>. Here's a real answer it gave.</p>
 <figure>
@@ -47,7 +51,9 @@
 <figcaption>A real answer from the engine on one firm's CRM, identifying details removed. This is the engine's output, not an audited figure.</figcaption>
 </figure>
 
-<h2>How it differs from a dashboard</h2>
+<figure class="viz v-flow"><figcaption class="viz-t">How the engine works</figcaption><ol><li><b>Reads</b><span>CRM, calendars, calls, ads</span></li><li><b>Computes</b><span>Every metric in code</span></li><li><b>Reasons</b><span>The AI explains the numbers</span></li><li><b>Answers</b><span>Number, list and next step</span></li><li><b>Acts</b><span>Only what your team approves</span></li></ol></figure>
+
+<h2 id="how-it-differs-from-a-dashboard">How it differs from a dashboard</h2>
 <p>A <a href="/blog/franchise-development-dashboard/">dashboard</a> shows what you decided to track. The engine lets you ask something you never planned for, such as:</p>
 <ul>
 <li>Where are we losing money?</li>
@@ -59,32 +65,24 @@
 <p>You get the number, the list behind it and a suggested next step.</p>
 <figure><img src="/assets/ai-revops-engine-rep-review.png" width="1042" height="351" alt="AI RevOps Engine answering a request for everything on one rep, covering appointments, show rate, conversion, pipeline and new leads." loading="lazy"><figcaption>Asking the engine about one rep. Names replaced by the engine&#x27;s anonymous labels. Engine output, not an audited figure.</figcaption></figure>
 
-<h2>How it differs from pasting data into ChatGPT</h2>
+<h2 id="how-it-differs-from-pasting-data-into-chatgpt">How it differs from pasting data into ChatGPT</h2>
 <p>Most CRMs can now connect to a general AI assistant, and that's useful for quick lookups. Finding leaks takes more.</p>
-<p><strong>The math happens in code.</strong> The AI never does the arithmetic. Every metric is calculated by a program first, so numbers can be reproduced. The AI's job is to reason about them and explain them.</p>
-<p><strong>It knows your definitions.</strong> What counts as qualified, stale or a no-show gets set once, for your business.</p>
-<p><strong>It reads everything.</strong> It covers every record across the CRM, calendars, calls and ads, rather than a sample or one screen at a time.</p>
-<h2>What it tends to find</h2>
+<p>Three things make the difference: the math happens in code so numbers can be reproduced, your definitions of qualified, stale and no-show get set once, and it reads every record instead of a sample.</p>
+<figure class="viz v-cmp"><figcaption class="viz-t">How the options compare</figcaption><div class="tbl"><div class="tbl"><table><thead><tr><th></th><th>Dashboard</th><th>General AI chat</th><th>AI RevOps Engine</th></tr></thead><tbody><tr><td>Answers questions you didn't plan for</td><td><span class="n">&#10005; No</span></td><td><span class="y">&#10003; Yes</span></td><td><span class="y">&#10003; Yes</span></td></tr><tr><td>Reads every record</td><td><span class="y">&#10003; Yes</span></td><td><span class="p">~ Partly</span></td><td><span class="y">&#10003; Yes</span></td></tr><tr><td>Math is done in code</td><td><span class="y">&#10003; Yes</span></td><td><span class="n">&#10005; No</span></td><td><span class="y">&#10003; Yes</span></td></tr><tr><td>Knows your definitions</td><td><span class="y">&#10003; Yes</span></td><td><span class="p">~ Partly</span></td><td><span class="y">&#10003; Yes</span></td></tr><tr><td>Can act, with approval</td><td><span class="n">&#10005; No</span></td><td><span class="n">&#10005; No</span></td><td><span class="y">&#10003; Yes</span></td></tr></tbody></table></div></div></figure>
+
+<h2 id="what-it-tends-to-find">What it tends to find</h2>
 <p>These are the kinds of leaks it surfaced on real data:</p>
-<ul>
-<li>Candidates flagged as financially qualified who never got a meeting</li>
-<li>Leads with no owner</li>
-<li>Booked meetings with no consultant attached</li>
-<li>Inbound messages nobody read</li>
-<li>High no-show rates with nothing in place to re-book</li>
-<li>Deals stuck in a stage for months</li>
-<li>Reps with very different results per meeting, invisible in the totals</li>
-<li>Ad sources that need far more leads per deal than others</li>
-</ul>
+<figure class="viz v-cards c2"><figcaption class="viz-t">The kinds of leaks it finds</figcaption><ul><li><b>Qualified buyers with no meeting</b></li><li><b>Leads with no owner</b></li><li><b>Booked meetings with no consultant</b></li><li><b>Inbound messages nobody read</b></li><li><b>No-shows with no re-book</b></li><li><b>Deals stuck for months</b></li><li><b>Big gaps between reps</b></li><li><b>Ad sources that need far more leads per deal</b></li></ul></figure>
+
 <figure><img src="/assets/ai-revops-engine-findings.png" width="1068" height="661" alt="AI RevOps Engine summary titled The revenue you can&#x27;t see, listing qualified buyers with no meeting, no-show rate, cost by lead source and unread messages." loading="lazy"><figcaption>What the engine pulled from one firm&#x27;s CRM. Captured on a different date from the other engine screens, so counts differ. Engine output, not an audited figure.</figcaption></figure>
 
 <p>None of this is a people problem. Standard reports just don't calculate it.</p>
-<h2>From analyze to act</h2>
+<h2 id="from-analyze-to-act">From analyze to act</h2>
 <p>Finding a leak only helps if something happens next. The engine works in two stages.</p>
-<p><strong>Analyze.</strong> It's read-only by default, so it can't change anything in your systems.</p>
-<p><strong>Act.</strong> It can then assign an unowned lead, re-book a no-show or start a reactivation sequence. Your team approves each kind of action, and every action is logged.</p>
+<figure class="viz v-fork"><figcaption class="viz-t">Two stages</figcaption><p class="q">What's it allowed to do?</p><div class="br c2"><div><span class="tag">Analyze</span><b>Read-only by default</b><p>It can't change anything in your systems.</p></div><div><span class="tag">Act</span><b>Only with approval</b><p>Assign a lead, re-book a no-show or start a sequence. Every action is logged.</p></div></div></figure>
+
 <p>Old-lead reactivation has real <a href="/blog/ai-voice-franchise-leads-compliance/">consent rules</a>, so it needs the same care as anything else that contacts a candidate.</p>
-<h2>What it needs from you</h2>
+<h2 id="what-it-needs-from-you">What it needs from you</h2>
 <p>The engine is only as good as its inputs. Get <a href="/blog/franchise-lead-sources-one-crm/">every source into one CRM</a> first.</p>
 <p>You don't have to start by giving anyone access to your CRM, either. A CRM leak audit runs on an export with no candidate names, under NDA, and the file is deleted within 7 days.</p>
 <p>To see what the wider system did for one firm, read the <a href="/case-study/">case study</a>.</p>
