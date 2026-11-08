@@ -274,6 +274,30 @@ code{font-family:var(--mono);font-size:.9em;background:var(--surface-2);padding:
 .prompt-head .btn{padding:7px 13px;font-size:14px}
 pre{background:var(--bg);border:1px solid var(--border-2);border-radius:10px;padding:14px;max-height:420px;overflow:auto;font-family:var(--mono);font-size:13.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--body)}
 .post figure img{width:100%}
+.drop{border:2px dashed var(--border-2);border-radius:var(--radius);padding:30px 20px;text-align:center;margin:22px 0}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+.drop label{display:block;cursor:pointer;margin-bottom:14px;color:var(--body)}
+.drop label b{display:block;font-size:20px;color:var(--accent)}
+.drop input:focus-visible+label b{text-decoration:underline}
+.scan-settings{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px}
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 12px}
+.report-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}
+.report-head .label{margin:0}
+.pdf-box{background:var(--surface);border:1px solid var(--accent-line);border-radius:var(--radius);padding:18px;margin:24px 0}
+.pdf-box form{background:none;border:0;padding:0}
+.post .pdf-box p.fine{margin:10px 0 0}
+#report .result .fine{margin:0}
+@media print{
+  :root{--bg:#fff;--surface:#fff;--surface-2:#f2f4f3;--border:#ccc;--border-2:#aaa;--text:#111;--body:#222;--muted:#555;--accent:#0a7a52;--accent-line:#aaa;--accent-soft:#eef5f1}
+  header.top,footer,.skip{display:none!important}
+  body{background:#fff;color:#111}
+  body.printing article>*:not(#scanTool){display:none!important}
+  body.printing #scanTool>*:not(#report){display:none!important}
+  .tr i,.o1,.o2,.o3,.o4{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  figure,.result{break-inside:avoid}
+}
+@media (max-width:640px){.map-grid{grid-template-columns:1fr}}
 @media (max-width:900px){
   .hero-grid,.proof,.form-grid{grid-template-columns:1fr}
   .stats{grid-template-columns:1fr 1fr}
