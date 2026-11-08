@@ -298,6 +298,19 @@ pre{background:var(--bg);border:1px solid var(--border-2);border-radius:10px;pad
   figure,.result{break-inside:avoid}
 }
 @media (max-width:640px){.map-grid{grid-template-columns:1fr}}
+.grade-form{margin:22px 0}
+.grade-form label{font-weight:600}
+.grade-row{display:flex;gap:10px}
+.grade-row .btn{width:auto;white-space:nowrap;flex:none}
+.big small{font-size:20px;color:var(--muted);font-weight:500}
+.post .check-list li{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
+.post .check-list li:last-child{border-bottom:0}
+.check-list i{font-style:normal;font-weight:700;width:18px;flex:none}
+.check-list .pass i{color:var(--accent)}
+.check-list .miss i{color:var(--muted)}
+.check-list b{color:var(--text)}
+.check-list p{font-size:14.5px;line-height:1.4;margin-top:2px}
+@media (max-width:560px){.grade-row{flex-direction:column}.grade-row .btn{width:100%}}
 @media (max-width:900px){
   .hero-grid,.proof,.form-grid{grid-template-columns:1fr}
   .stats{grid-template-columns:1fr 1fr}
