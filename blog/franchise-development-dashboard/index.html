@@ -110,7 +110,7 @@
 <figure><img src="/assets/dashboard-meta-ads.png" width="1400" height="523" alt="Meta Ads dashboard page showing impressions, clicks and cost per lead, with spend hidden." loading="lazy"><figcaption>Ad data sits next to the pipeline in the same dashboard. Spend hidden.</figcaption></figure>
 
 <h2 id="four-ways-dashboards-go-wrong">Four ways dashboards go wrong</h2>
-<figure class="viz v-cards c2"><figcaption class="viz-t">Four ways dashboards go wrong</figcaption><ul><li><b>Counting calls as people</b><p>1,385 callback requests were calls. One person can ask twice.</p></li><li><b>Comparing against an import</b><p>Loading old contacts makes that month's lead count fake.</p></li><li><b>Missing calendars</b><p>One rep's appointments were under-counted because of a personal calendar setup.</p></li><li><b>Empty outcome fields</b><p>If nobody records whether a meeting happened, show rate is a guess.</p></li></ul></figure>
+<figure class="viz v-cards c2"><figcaption class="viz-t">Four ways dashboards go wrong</figcaption><ul><li><b>Counting calls as people</b><p>A callback count is a count of calls. One person can ask twice.</p></li><li><b>Comparing against an import</b><p>Loading old contacts makes that month's lead count fake.</p></li><li><b>Missing calendars</b><p>One rep's appointments were under-counted because of a personal calendar setup.</p></li><li><b>Empty outcome fields</b><p>If nobody records whether a meeting happened, show rate is a guess.</p></li></ul></figure>
 
 <h2 id="how-ours-is-built">How ours is built</h2>
 <p>The setup is simple. Scheduled <a href="https://n8n.io/" rel="noopener">n8n</a> workflows pull from the CRM and calendars, calculate the numbers per consultant and store the results. The dashboard reads from that store.</p>
