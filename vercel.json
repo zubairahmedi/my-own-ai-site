@@ -1,6 +1,14 @@
 {
   "trailingSlash": true,
   "functions": { "api/grade.js": { "maxDuration": 30 } },
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.zehaanai.com" }],
+      "destination": "https://zehaanai.com/$1",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/((?!safe-report).*)",
