@@ -1,0 +1,37 @@
+# ZehaanAI
+
+> ZehaanAI builds AI systems for franchise development teams in the US and Canada: a fast first touch on every inquiry, automatic follow-up, one CRM for every lead source, a dashboard with the full data, and an AI RevOps Engine that reads all of it. Founded by Zehaan Khan in the Greater Toronto Area.
+
+Key facts:
+
+- Case study: for a franchise consulting firm, booked appointments went from an average of 89 to 163 a month and show rate from 32% to 41%, on 5,379 AI calls. Consultant network leads, before and after. Other things changed too.
+- Of those 5,379 AI calls, 37% reached a live person and 40% went to voicemail.
+- The AI qualifies and schedules. It never sells, negotiates or talks about earnings, and ZehaanAI charges flat fees, never a share of a franchise award.
+- Contact: enquiries@zehaanai.com
+
+## Start here
+
+- [Franchise Lead Follow-Up With AI: The Complete Guide](https://zehaanai.com/franchise-lead-follow-up-with-ai/): everything from inquiry to booked intro call, from 5,379 real AI calls.
+- [Case study](https://zehaanai.com/case-study/): the before and after numbers, with what we don't claim.
+
+## Free tools
+
+- [Franchise Website Grader](https://zehaanai.com/tools/franchise-website-grader/): Free. Grades a franchise development page on what serious candidates can and cannot find.
+- [Franchise CRM Leak Scanner](https://zehaanai.com/tools/franchise-crm-leak-scanner/): Free. Finds never-worked, one-touch, stale and unowned leads in a CRM CSV export. Runs in the browser; nothing is uploaded.
+- [Franchise Cost Per Sale Calculator](https://zehaanai.com/tools/franchise-cost-per-sale-calculator/): Free. Compares cost per signed franchise agreement with the 2025 industry average of $17,550.
+
+## Blog
+
+- [Franchise Speed to Lead: What the Data Actually Says](https://zehaanai.com/blog/franchise-speed-to-lead/): Published data on how fast franchise brands respond to inquiries, which speed-to-lead stats hold up, and how to build a fast first touch that stays legal.
+- [Franchise Lead Follow-Up: A System That Doesn't Depend on Memory](https://zehaanai.com/blog/franchise-lead-follow-up/): Why one-touch follow-up burns franchise lead budgets, and how to build a call, text and email system that keeps working until a candidate books or opts out.
+- [One CRM for Every Franchise Lead Source](https://zehaanai.com/blog/franchise-lead-sources-one-crm/): Why franchise development should route portals, brokers, ads and website forms into one CRM, and the fields every lead needs before automation can work.
+- [The Franchise Development Dashboard: What to Track and Why](https://zehaanai.com/blog/franchise-development-dashboard/): The franchise development metrics worth putting on a dashboard, how to define each one, published benchmarks, and the mistakes that skew the numbers.
+- [AI RevOps for Franchise Development: What It Is and What It Finds](https://zehaanai.com/blog/ai-revops-franchise-development/): What an AI RevOps engine does for franchise development, how it differs from a dashboard or a chatbot, and the kinds of pipeline leaks it finds in a real CRM.
+- [AI Voice Calling for Franchise Leads: The Rules That Matter](https://zehaanai.com/blog/ai-voice-franchise-leads-compliance/): A practical guide to TCPA consent, AI disclosure, calling windows and FTC earnings claim rules for franchise teams using AI voice agents on candidates.
+- [How to Calculate Cost Per Franchise Sale](https://zehaanai.com/blog/cost-per-franchise-sale/): The cost per franchise sale formula, what to include, 2025 benchmarks by brand size, and the fastest ways to bring the number down without buying more leads.
+- [How We Built an AI Voice Agent for Franchise Leads With Retell AI](https://zehaanai.com/blog/retell-ai-voice-agent-franchise-leads/): A builder's account of an AI voice agent for franchise leads on Retell AI and GoHighLevel, covering the setup, the real call data and what went wrong.
+- [Best AI Tools for Franchise Development in 2026](https://zehaanai.com/blog/best-ai-tools-franchise-development/): A plain comparison of AI tools for franchise development, including voice, text and CRM options, what each one does, published pricing and how to choose.
+
+## About
+
+- [About Zehaan Khan](https://zehaanai.com/about/): founder of ZehaanAI, building AI automation since 2023 and franchise lead systems since 2024.
